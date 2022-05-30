@@ -1,40 +1,76 @@
-# This Python 3 environment comes with many helpful analytics libraries installed
-# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
-# For example, here's several helpful packages to load
-
-import math
-from collections import Counter, defaultdict
-from functools import partial
-from pprint import pprint
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import seaborn as sns
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, \
-                            classification_report
+import numpy as np #used to make arrays
+import pandas as pd #useful for creating data frames
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OrdinalEncoder, OneHotEncoder
-from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
 
-plt.style.use("fivethirtyeight")
+#loading the csv data to our Pandas dataframe
+heart_data = pd.read_csv('/content/data.csv')
 
-print('Import Done...')
+#print first five rows
+heart_data.head()
 
-# Input data files are available in the read-only "../input/" directory
-# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+#print last five rows
+heart_data.tail()
 
-import os
-for dirname, _, filenames in os.walk('/kaggle/input'):
-    for filename in filenames:
-        print(os.path.join(dirname, filename))
+#number of rows and columns
+heart_data.shape
 
-# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
-# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+#get info about data
+heart_data.info()
 
-hd_data=pd.read_csv('/kaggle/input/personal-key-indicators-of-heart-disease/heart_2020_cleaned.csv')
-hd_data.describe()
+#checking for missing values
+heart_data.isnull().sum
+
+#statistical measures about the data
+heart_data.describe()
+
+#checking the distribution of the target variable
+# 1 --> defective heart
+# 0 --> healthy heart
+heart_data['target'].value_counts()
+
+X = heart_data.drop(columns='target', axis=1)
+Y = heart_data['target']
+
+print(X)
+print(Y)
+
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y, random_state=2)
+
+print(X.shape, X_train.shape, X_test.shape) #original data, train data, test data
+
+model = LogisticRegression()
+
+#training the logistic regression model with training data
+model.fit(X_train, Y_train)
+
+#accuracy on training data
+X_train_prediction = model.predict(X_train)
+training_data_accuracy = accuracy_score(X_train_prediction, Y_train)
+
+print('Accuracy on training data: ', training_data_accuracy)
+
+#accuracy on test data
+X_test_prediction = model.predict(X_test)
+testing_data_accuracy = accuracy_score(X_test_prediction, Y_test)
+
+print('Accuracy on testing data: ', testing_data_accuracy)
+
+input_data = (41,0,1,130,204,0,0,172,0,1.4,2,0,2)
+# change the input data to a numpy array. currently tuple
+input_data_as_numpy_array = np.asarray(input_data)
+
+#reshape numpy array since we are predicting for only one instance
+input_data_reshaped = input_data_as_numpy_array.reshape(1, -1)
+
+prediction = model.predict(input_data_reshaped)
+print(prediction) #prints 1 or 0
+
+if (prediction[0]==0):
+  print('The person does not have heart disease')
+else:
+  print('The person has heart disease')
 
 
-#Selecting The Prediction Target
-y = hd_data.PhysicalActivity
+
