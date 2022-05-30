@@ -1,4 +1,4 @@
-# Heart Disease Predictive Modeling
+# Heart Disease Predictive Model
 
 This machine learning algorithm takes in a kaggle dataset and predicts the likelihood of an individual having heart disease. 
 
